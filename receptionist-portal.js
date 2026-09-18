@@ -1,10 +1,7 @@
 // Receptionist Portal Controller
 
 document.addEventListener('DOMContentLoaded', () => {
-  if (!AuthManager.requireRole(UserRoles.RECEPTIONIST)) {
-    return;
-  }
-
+  if (!AuthManager.requireRole(UserRoles.RECEPTIONIST)) return;
   initializeReceptionistPortal();
   loadDashboardSection();
 });

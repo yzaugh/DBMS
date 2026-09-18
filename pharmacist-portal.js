@@ -1,10 +1,7 @@
 // Pharmacist Portal Controller
 
 document.addEventListener('DOMContentLoaded', () => {
-  if (!AuthManager.requireRole(UserRoles.PHARMACIST)) {
-    return;
-  }
-
+  if (!AuthManager.requireRole(UserRoles.PHARMACIST)) return;
   initializePharmacistPortal();
   loadDashboardSection();
 });
