@@ -11,6 +11,9 @@
 
 5. ##carepulse_db.sql## should be put at PHPMYADMIN'S SQL (IMPORT FILE)
    
-7. Run it
-
+7. Run it at
+8. ```bash
+   http://localhost/DBMS/
+   ```
+   
 P.S I added some functionalities especially edit, delete, view, add features.
