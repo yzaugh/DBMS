@@ -1,10 +1,7 @@
 // Inventory Manager Portal Controller
 
 document.addEventListener('DOMContentLoaded', () => {
-  if (!AuthManager.requireRole(UserRoles.INVENTORY_MANAGER)) {
-    return;
-  }
-
+  if (!AuthManager.requireRole(UserRoles.INVENTORY_MANAGER)) return;
   initializeInventoryPortal();
   loadDashboardSection();
 });

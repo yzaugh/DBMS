@@ -7,8 +7,8 @@ $dbname = 'carepulse_db';
 $username = 'root';
 $password = '';
 
-$data = json_decode(file_get_contents('php://input'), true);
-$name = $data['name'] ?? '';
+$data  = json_decode(file_get_contents('php://input'), true);
+$name  = $data['name']  ?? '';
 $email = $data['email'] ?? '';
 $phone = $data['phone'] ?? '';
 
@@ -23,20 +23,18 @@ try {
 
     $pdo->beginTransaction();
 
-    $stmtUser = $pdo->prepare("INSERT INTO users (name, email, password, role) VALUES (?, ?, 'default123', 'Patient')");
-    $stmtUser->execute([$name, $email]);
+    $stmtUser = $pdo->prepare("INSERT INTO users (name, email, password, role, phone) VALUES (?, ?, 'default123', 'Patient', ?)");
+    $stmtUser->execute([$name, $email, $phone]);
     $userId = $pdo->lastInsertId();
 
-    $stmtPatient = $pdo->prepare("INSERT INTO patients (user_id, phone, registered_date, last_visit) VALUES (?, ?, CURDATE(), CURDATE())");
-    $stmtPatient->execute([$userId, $phone]);
+    $stmtPatient = $pdo->prepare("INSERT INTO patients (user_id, registered_date, last_visit) VALUES (?, CURDATE(), CURDATE())");
+    $stmtPatient->execute([$userId]);
 
     $pdo->commit();
-
     echo json_encode(['success' => true]);
+
 } catch (PDOException $e) {
-    if ($pdo->inTransaction()) {
-        $pdo->rollBack();
-    }
+    if ($pdo->inTransaction()) $pdo->rollBack();
     echo json_encode(['success' => false, 'error' => $e->getMessage()]);
 }
 ?>

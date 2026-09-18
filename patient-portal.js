@@ -3,11 +3,7 @@
 let currentPatientId = null;
 
 document.addEventListener('DOMContentLoaded', () => {
-  // Check authentication and role
-  if (!AuthManager.requireRole(UserRoles.PATIENT)) {
-    return;
-  }
-
+  if (!AuthManager.requireRole(UserRoles.PATIENT)) return;
   initializePatientPortal();
   loadDashboardSection();
 });

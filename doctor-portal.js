@@ -3,10 +3,7 @@
 let currentDoctorId = null;
 
 document.addEventListener('DOMContentLoaded', () => {
-  if (!AuthManager.requireRole(UserRoles.DOCTOR)) {
-    return;
-  }
-
+  if (!AuthManager.requireRole(UserRoles.DOCTOR)) return;
   initializeDoctorPortal();
   loadDashboardSection();
 });
