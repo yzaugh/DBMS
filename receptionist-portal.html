@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CarePulse - Receptionist Portal</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://unpkg.com/feather-icons"></script>
+</head>
+<body>
+  <div class="dashboard-container">
+    <aside class="sidebar">
+      <div class="brand">
+        <i data-feather="heart"></i>
+        <h2>CarePulse</h2>
+      </div>
+      <nav class="nav-menu">
+        <a href="#" onclick="loadSection('dashboard')" class="nav-item active"><i data-feather="home"></i> Dashboard</a>
+        <a href="#" onclick="loadSection('appointments')" class="nav-item"><i data-feather="calendar"></i> Appointments</a>
+        <a href="#" onclick="loadSection('queue')" class="nav-item"><i data-feather="list"></i> Queue Management</a>
+        <a href="#" onclick="loadSection('patients')" class="nav-item"><i data-feather="users"></i> Patient Check-in</a>
+        <a href="#" onclick="logoutUser()" class="nav-item" style="margin-top: auto; color: #ee5d50;"><i data-feather="log-out"></i> Logout</a>
+      </nav>
+    </aside>
+
+    <main class="main-content">
+      <header class="top-header">
+        <h1 id="page-title">Receptionist Dashboard</h1>
+        <div class="user-profile">
+          <i data-feather="bell"></i>
+          <div class="avatar" id="user-avatar">RE</div>
+          <span id="user-name">Receptionist</span>
+        </div>
+      </header>
+
+      <!-- Dashboard Section -->
+      <section id="section-dashboard" class="content-section">
+        <section class="kpi-grid">
+          <div class="card">
+            <div class="card-icon blue"><i data-feather="calendar"></i></div>
+            <div class="card-info">
+              <h3>Today's Appointments</h3>
+              <p class="card-value" id="today-count">0</p>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-icon green"><i data-feather="check-circle"></i></div>
+            <div class="card-info">
+              <h3>Checked In</h3>
+              <p class="card-value" id="checkin-count">0</p>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-icon orange"><i data-feather="list"></i></div>
+            <div class="card-info">
+              <h3>Waiting</h3>
+              <p class="card-value" id="waiting-count">0</p>
+            </div>
+          </div>
+        </section>
+
+        <div class="table-container">
+          <h2>Today's Appointments</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>Time</th>
+                <th>Patient</th>
+                <th>Doctor</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="today-appointments">
+              <tr><td colspan="5" style="text-align: center;">Loading...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Appointments Section -->
+      <section id="section-appointments" class="content-section" style="display: none;">
+        <div class="table-container">
+          <h2>Appointment Management</h2>
+          <button class="btn-primary" onclick="createAppointment()">+ Schedule New Appointment</button>
+          <table>
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Time</th>
+                <th>Patient</th>
+                <th>Doctor</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="appointments-table">
+              <tr><td colspan="6" style="text-align: center;">Loading...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Queue Management Section -->
+      <section id="section-queue" class="content-section" style="display: none;">
+        <div class="table-container">
+          <h2>Patient Queue</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>Queue #</th>
+                <th>Patient</th>
+                <th>Doctor</th>
+                <th>Check-in Time</th>
+                <th>Wait Time</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="queue-table">
+              <tr><td colspan="7" style="text-align: center;">No patients in queue</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Patient Check-in Section -->
+      <section id="section-patients" class="content-section" style="display: none;">
+        <div class="table-container">
+          <h2>Patient Check-in</h2>
+          <div style="margin-bottom: 20px;">
+            <label>Search Patient:</label>
+            <input type="text" id="patient-search" placeholder="Enter patient name or email" style="width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 8px;">
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th>Patient Name</th>
+                <th>Email</th>
+                <th>Phone</th>
+                <th>Appointment Time</th>
+                <th>Doctor</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="checkin-table">
+              <tr><td colspan="6" style="text-align: center;">Loading...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="shared.js"></script>
+  <script src="receptionist-portal.js"></script>
+  <script>feather.replace();</script>
+</body>
+</html>

@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CarePulse - Pharmacist Portal</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://unpkg.com/feather-icons"></script>
+</head>
+<body>
+  <div class="dashboard-container">
+    <aside class="sidebar">
+      <div class="brand">
+        <i data-feather="heart"></i>
+        <h2>CarePulse</h2>
+      </div>
+      <nav class="nav-menu">
+        <a href="#" onclick="loadSection('dashboard')" class="nav-item active"><i data-feather="home"></i> Dashboard</a>
+        <a href="#" onclick="loadSection('prescriptions')" class="nav-item"><i data-feather="pill"></i> Prescriptions</a>
+        <a href="#" onclick="loadSection('inventory')" class="nav-item"><i data-feather="package"></i> Inventory</a>
+        <a href="#" onclick="loadSection('orders')" class="nav-item"><i data-feather="shopping-cart"></i> Orders</a>
+        <a href="#" onclick="logoutUser()" class="nav-item" style="margin-top: auto; color: #ee5d50;"><i data-feather="log-out"></i> Logout</a>
+      </nav>
+    </aside>
+
+    <main class="main-content">
+      <header class="top-header">
+        <h1 id="page-title">Pharmacist Dashboard</h1>
+        <div class="user-profile">
+          <i data-feather="bell"></i>
+          <div class="avatar" id="user-avatar">PH</div>
+          <span id="user-name">Pharmacist</span>
+        </div>
+      </header>
+
+      <!-- Dashboard Section -->
+      <section id="section-dashboard" class="content-section">
+        <section class="kpi-grid">
+          <div class="card">
+            <div class="card-icon blue"><i data-feather="pill"></i></div>
+            <div class="card-info">
+              <h3>Pending Prescriptions</h3>
+              <p class="card-value" id="pending-count">0</p>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-icon green"><i data-feather="check-circle"></i></div>
+            <div class="card-info">
+              <h3>Dispensed Today</h3>
+              <p class="card-value" id="dispensed-count">0</p>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-icon orange"><i data-feather="alert-circle"></i></div>
+            <div class="card-info">
+              <h3>Low Stock Items</h3>
+              <p class="card-value" id="low-stock-count">0</p>
+            </div>
+          </div>
+        </section>
+
+        <div class="table-container">
+          <h2>Pending Prescriptions</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Patient</th>
+                <th>Doctor</th>
+                <th>Medication</th>
+                <th>Dosage</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="pending-prescriptions">
+              <tr><td colspan="6" style="text-align: center;">Loading...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Prescriptions Section -->
+      <section id="section-prescriptions" class="content-section" style="display: none;">
+        <div class="table-container">
+          <h2>Prescription Management</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Patient</th>
+                <th>Doctor</th>
+                <th>Medication</th>
+                <th>Quantity</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="prescriptions-table">
+              <tr><td colspan="7" style="text-align: center;">Loading...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Inventory Section -->
+      <section id="section-inventory" class="content-section" style="display: none;">
+        <div class="table-container">
+          <h2>Medicine Inventory</h2>
+          <button class="btn-primary" onclick="addMedicine()">+ Add Medicine</button>
+          <table>
+            <thead>
+              <tr>
+                <th>Medicine Name</th>
+                <th>Quantity</th>
+                <th>Unit</th>
+                <th>Expiry Date</th>
+                <th>Price</th>
+                <th>Reorder Level</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="inventory-table">
+              <tr><td colspan="7" style="text-align: center;">No inventory items</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Orders Section -->
+      <section id="section-orders" class="content-section" style="display: none;">
+        <div class="table-container">
+          <h2>Purchase Orders</h2>
+          <button class="btn-primary" onclick="createOrder()">+ New Purchase Order</button>
+          <table>
+            <thead>
+              <tr>
+                <th>Order #</th>
+                <th>Date</th>
+                <th>Supplier</th>
+                <th>Total Items</th>
+                <th>Amount</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="orders-table">
+              <tr><td colspan="7" style="text-align: center;">No purchase orders</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="shared.js"></script>
+  <script src="pharmacist-portal.js"></script>
+  <script>feather.replace();</script>
+</body>
+</html>

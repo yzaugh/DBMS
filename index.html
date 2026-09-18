@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CarePulse - Admin Dashboard</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://unpkg.com/feather-icons"></script>
+</head>
+<body>
+  <div class="dashboard-container">
+    <aside class="sidebar">
+      <div class="brand">
+        <i data-feather="heart"></i>
+        <h2>CarePulse</h2>
+      </div>
+      <nav class="nav-menu">
+        <a href="#" onclick="loadSection('overview')" class="nav-item active"><i data-feather="grid"></i> Dashboard</a>
+        <a href="#" onclick="loadSection('patients')" class="nav-item"><i data-feather="users"></i> Patients</a>
+        <a href="appointments.html" class="nav-item"><i data-feather="calendar"></i> Appointments</a>
+        <a href="ehr.html" class="nav-item"><i data-feather="file-text"></i> Medical Records (EHR)</a>
+        <a href="#" onclick="loadSection('doctors')" class="nav-item"><i data-feather="user-check"></i> Doctors</a>
+        <a href="#" onclick="loadSection('users')" class="nav-item"><i data-feather="users-icon"></i> User Management</a>
+        <a href="#" onclick="loadSection('queue')" class="nav-item"><i data-feather="list"></i> Queue Management</a>
+        <a href="#" onclick="logoutUser()" class="nav-item" style="margin-top: auto; color: #ee5d50;"><i data-feather="log-out"></i> Logout</a>
+      </nav>
+    </aside>
+
+    <main class="main-content">
+      <header class="top-header">
+        <h1 id="page-title">Admin Dashboard</h1>
+        <div class="user-profile">
+          <i data-feather="bell"></i>
+          <div class="avatar" id="user-avatar">SA</div>
+          <span id="user-name">System Admin</span>
+        </div>
+      </header>
+
+      <!-- Overview Section -->
+      <section id="section-overview" class="content-section">
+        <section class="kpi-grid">
+          <div class="card">
+            <div class="card-icon blue"><i data-feather="users"></i></div>
+            <div class="card-info">
+              <h3>Total Patients</h3>
+              <p class="card-value" id="total-patients">0</p>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-icon orange"><i data-feather="calendar"></i></div>
+            <div class="card-info">
+              <h3>Today's Appointments</h3>
+              <p class="card-value" id="todays-appointments">0</p>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-icon green"><i data-feather="user-check"></i></div>
+            <div class="card-info">
+              <h3>Active Doctors</h3>
+              <p class="card-value" id="active-doctors">0</p>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-icon purple"><i data-feather="file-text"></i></div>
+            <div class="card-info">
+              <h3>Medical Records</h3>
+              <p class="card-value" id="total-records">0</p>
+            </div>
+          </div>
+        </section>
+
+        <!-- Recent Activities -->
+        <div class="table-container">
+          <h2>Recent Activities</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>Type</th>
+                <th>Patient</th>
+                <th>Doctor</th>
+                <th>Date</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="recent-activities">
+              <tr><td colspan="5" style="text-align: center; color: var(--text-secondary);">Loading...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Patients Section -->
+      <section id="section-patients" class="content-section" style="display: none;">
+        <div class="table-container">
+          <h2>Patient Management</h2>
+          <button class="btn-primary" onclick="showForm('add-patient')">+ Add New Patient</button>
+          <table>
+            <thead>
+              <tr>
+                <th>Patient Name</th>
+                <th>Email</th>
+                <th>Phone</th>
+                <th>Registered Date</th>
+                <th>Last Visit</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="patients-table">
+              <tr><td colspan="6" style="text-align: center;">Loading...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Appointments Section -->
+      <section id="section-appointments" class="content-section" style="display: none;">
+        <div class="table-container">
+          <h2>Appointment Management</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>Patient</th>
+                <th>Doctor</th>
+                <th>Date</th>
+                <th>Time</th>
+                <th>Reason</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="appointments-table">
+              <tr><td colspan="6" style="text-align: center;">Loading...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Doctors Section -->
+      <section id="section-doctors" class="content-section" style="display: none;">
+        <div class="table-container">
+          <h2>Doctor Management</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>Doctor Name</th>
+                <th>Specialization</th>
+                <th>License #</th>
+                <th>Experience</th>
+                <th>Consultation Fee</th>
+              </tr>
+            </thead>
+            <tbody id="doctors-table">
+              <tr><td colspan="5" style="text-align: center;">Loading...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Medical Records Section -->
+      <section id="section-records" class="content-section" style="display: none;">
+        <div class="table-container">
+          <h2>Medical Records</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>Patient</th>
+                <th>Doctor</th>
+                <th>Date</th>
+                <th>Type</th>
+                <th>Diagnosis</th>
+              </tr>
+            </thead>
+            <tbody id="records-table">
+              <tr><td colspan="5" style="text-align: center;">Loading...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- User Management Section -->
+      <section id="section-users" class="content-section" style="display: none;">
+        <div class="table-container">
+          <h2>User Management</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Role</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="users-table">
+              <tr><td colspan="4" style="text-align: center;">Loading...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Queue Management Section -->
+      <section id="section-queue" class="content-section" style="display: none;">
+        <div class="table-container">
+          <h2>Queue Management</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>Queue #</th>
+                <th>Patient</th>
+                <th>Doctor</th>
+                <th>Check-in Time</th>
+                <th>Wait Time</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="queue-table">
+              <tr><td colspan="6" style="text-align: center;">No patients in queue</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="shared.js"></script>
+  <script src="admin-dashboard.js"></script>
+  <script>feather.replace();</script>
+</body>
+</html>
+            <h3>Appointments Today</h3>
+            <p class="card-value">42</p>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-icon orange"><i data-feather="clock"></i></div>
+          <div class="card-info">
+            <h3>Pending Requests</h3>
+            <p class="card-value">14</p>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-icon purple"><i data-feather="activity"></i></div>
+          <div class="card-info">
+            <h3>Surgeries Scheduled</h3>
+            <p class="card-value">5</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="table-container">
+        <h2>Recent Appointments</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Patient</th>
+              <th>Doctor</th>
+              <th>Department</th>
+              <th>Time</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>John Doe</td>
+              <td>Dr. Alan Grant</td>
+              <td>Cardiology</td>
+              <td>09:00 AM</td>
+              <td><span class="status confirmed">Confirmed</span></td>
+            </tr>
+            <tr>
+              <td>Jane Smith</td>
+              <td>Dr. Ellie Sattler</td>
+              <td>Pediatrics</td>
+              <td>10:30 AM</td>
+              <td><span class="status pending">Pending</span></td>
+            </tr>
+            <tr>
+              <td>Robert Muldoon</td>
+              <td>Dr. Ian Malcolm</td>
+              <td>Neurology</td>
+              <td>01:15 PM</td>
+              <td><span class="status completed">Completed</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    feather.replace();
+  </script>
+</body>
+</html>

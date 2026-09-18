@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CarePulse - Login</title>
+  <link rel="stylesheet" href="login.css">
+  <script src="https://unpkg.com/feather-icons"></script>
+</head>
+<body>
+  <div class="login-container">
+    <div class="login-card">
+      <div class="brand">
+        <i data-feather="heart"></i>
+        <h2>CarePulse</h2>
+      </div>
+      <p class="subtitle">Please select your portal and sign in</p>
+
+      <div class="role-selector">
+        <button type="button" class="role-btn active" id="btn-admin" onclick="selectRole('Admin')">
+          <i data-feather="shield"></i> Admin
+        </button>
+        <button type="button" class="role-btn" id="btn-doctor" onclick="selectRole('Physician')">
+          <i data-feather="user-check"></i> Physician
+        </button>
+        <button type="button" class="role-btn" id="btn-patient" onclick="selectRole('Patient')">
+          <i data-feather="user"></i> Patient
+        </button>
+        <button type="button" class="role-btn" id="btn-receptionist" onclick="selectRole('Receptionist')">
+          <i data-feather="phone"></i> Receptionist
+        </button>
+        <button type="button" class="role-btn" id="btn-pharmacist" onclick="selectRole('Pharmacist')">
+          <i data-feather="pill"></i> Pharmacist
+        </button>
+        <button type="button" class="role-btn" id="btn-inventory" onclick="selectRole('InventoryManager')">
+          <i data-feather="package"></i> Inventory
+        </button>
+      </div>
+
+      <!-- Form now points to PHP backend -->
+      <form id="login-form" action="login.php" method="POST">
+        <input type="hidden" name="role" id="selected-role-input" value="Admin">
+        
+        <div class="input-group">
+          <label for="email">Email Address</label>
+          <input type="email" id="email" name="email" placeholder="name@carepulse.com" required>
+        </div>
+
+        <div class="input-group">
+          <label for="password">Password</label>
+          <input type="password" id="password" name="password" placeholder="••••••••" required>
+        </div>
+
+        <button type="submit" class="submit-btn" id="submit-btn">Login as Admin</button>
+      </form>
+    </div>
+  </div>
+
+  <script src="login.js"></script>
+  <script>feather.replace();</script>
+</body>
+</html>
