@@ -1,18 +1,14 @@
--- phpMyAdmin SQL Dump
--- version 5.2.1
--- https://www.phpmyadmin.net/
---
--- Host: 127.0.0.1:3307
--- Generation Time: Sep 18, 2026 at 08:58 PM
--- Server version: 10.4.32-MariaDB
--- PHP Version: 8.0.30
+-- ============================================================
+-- CarePulse Database — Full Setup
+-- Import into phpMyAdmin (XAMPP, port 3306)
+-- ============================================================
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
 SET time_zone = "+00:00";
 
--- ADD THESE TWO LINES:
-CREATE DATABASE IF NOT EXISTS `carepulse_db` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
+DROP DATABASE IF EXISTS `carepulse_db`;
+CREATE DATABASE `carepulse_db` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
 USE `carepulse_db`;
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
@@ -20,182 +16,12 @@ USE `carepulse_db`;
 /*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
 /*!40101 SET NAMES utf8mb4 */;
 
---
--- Database: `carepulse_db`
---
-
 -- --------------------------------------------------------
-
---
--- Table structure for table `activities`
---
-
-CREATE TABLE `activities` (
-  `id` int(11) NOT NULL,
-  `activity_type` varchar(100) DEFAULT NULL,
-  `patient_id` int(11) DEFAULT NULL,
-  `doctor_id` int(11) DEFAULT NULL,
-  `activity_date` datetime DEFAULT current_timestamp(),
-  `status` varchar(50) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
+-- Tables
 -- --------------------------------------------------------
-
---
--- Table structure for table `appointments`
---
-
-CREATE TABLE `appointments` (
-  `id` int(11) NOT NULL,
-  `patient_id` int(11) DEFAULT NULL,
-  `doctor_id` int(11) DEFAULT NULL,
-  `department` varchar(100) DEFAULT NULL,
-  `appointment_date` date DEFAULT NULL,
-  `appointment_time` time DEFAULT NULL,
-  `reason` text DEFAULT NULL,
-  `status` enum('Pending','Confirmed','Completed','Cancelled') DEFAULT 'Pending'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `doctors`
---
-
-CREATE TABLE `doctors` (
-  `id` int(11) NOT NULL,
-  `user_id` int(11) DEFAULT NULL,
-  `specialization` varchar(100) DEFAULT NULL,
-  `license_number` varchar(50) DEFAULT NULL,
-  `experience_years` int(11) DEFAULT NULL,
-  `consultation_fee` decimal(10,2) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `inventory`
---
-
-CREATE TABLE `inventory` (
-  `id` int(11) NOT NULL,
-  `item_name` varchar(150) NOT NULL,
-  `category` varchar(100) DEFAULT NULL,
-  `quantity` int(11) NOT NULL,
-  `unit` varchar(50) DEFAULT NULL,
-  `unit_cost` decimal(10,2) DEFAULT NULL,
-  `expiry_date` date DEFAULT NULL,
-  `reorder_level` int(11) DEFAULT NULL,
-  `last_updated` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
-  `status` enum('In Stock','Low Stock','Out of Stock') DEFAULT 'In Stock'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `medical_records`
---
-
-CREATE TABLE `medical_records` (
-  `id` int(11) NOT NULL,
-  `patient_id` int(11) DEFAULT NULL,
-  `doctor_id` int(11) DEFAULT NULL,
-  `record_date` date DEFAULT curdate(),
-  `record_type` varchar(100) DEFAULT NULL,
-  `diagnosis` text DEFAULT NULL,
-  `prescription_summary` text DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `patients`
---
-
-CREATE TABLE `patients` (
-  `id` int(11) NOT NULL,
-  `user_id` int(11) DEFAULT NULL,
-  `registered_date` date DEFAULT curdate(),
-  `last_visit` datetime DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `prescriptions`
---
-
-CREATE TABLE `prescriptions` (
-  `id` int(11) NOT NULL,
-  `patient_id` int(11) DEFAULT NULL,
-  `doctor_id` int(11) DEFAULT NULL,
-  `prescription_date` date DEFAULT curdate(),
-  `medication` varchar(150) NOT NULL,
-  `dosage` varchar(100) DEFAULT NULL,
-  `duration` varchar(100) DEFAULT NULL,
-  `quantity` int(11) DEFAULT NULL,
-  `refills` int(11) DEFAULT 0,
-  `status` enum('Pending','Dispensed','Cancelled') DEFAULT 'Pending'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `purchase_orders`
---
-
-CREATE TABLE `purchase_orders` (
-  `id` int(11) NOT NULL,
-  `order_number` varchar(50) DEFAULT NULL,
-  `order_date` date DEFAULT curdate(),
-  `supplier_id` int(11) DEFAULT NULL,
-  `supplier_name` varchar(150) DEFAULT NULL,
-  `total_items` int(11) DEFAULT NULL,
-  `amount` decimal(10,2) DEFAULT NULL,
-  `expected_delivery` date DEFAULT NULL,
-  `status` enum('Pending','Approved','Delivered','Cancelled') DEFAULT 'Pending'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `queues`
---
-
-CREATE TABLE `queues` (
-  `id` int(11) NOT NULL,
-  `queue_number` int(11) DEFAULT NULL,
-  `patient_id` int(11) DEFAULT NULL,
-  `doctor_id` int(11) DEFAULT NULL,
-  `check_in_time` time DEFAULT NULL,
-  `wait_time` varchar(50) DEFAULT NULL,
-  `status` enum('Waiting','Serving','Completed') DEFAULT 'Waiting'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `suppliers`
---
-
-CREATE TABLE `suppliers` (
-  `id` int(11) NOT NULL,
-  `supplier_name` varchar(150) NOT NULL,
-  `contact_person` varchar(100) DEFAULT NULL,
-  `email` varchar(100) DEFAULT NULL,
-  `phone` varchar(20) DEFAULT NULL,
-  `address` text DEFAULT NULL,
-  `status` enum('Active','Inactive') DEFAULT 'Active'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `users`
---
 
 CREATE TABLE `users` (
-  `id` int(11) NOT NULL,
+  `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(100) NOT NULL,
   `email` varchar(100) NOT NULL,
   `password` varchar(255) NOT NULL,
@@ -205,232 +31,197 @@ CREATE TABLE `users` (
   `gender` varchar(20) DEFAULT NULL,
   `blood_type` varchar(10) DEFAULT NULL,
   `address` text DEFAULT NULL,
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `email` (`email`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
---
--- Dumping data for table `users`
---
+CREATE TABLE `doctors` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `user_id` int(11) DEFAULT NULL,
+  `specialization` varchar(100) DEFAULT NULL,
+  `license_number` varchar(50) DEFAULT NULL,
+  `experience_years` int(11) DEFAULT NULL,
+  `consultation_fee` decimal(10,2) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `license_number` (`license_number`),
+  KEY `user_id` (`user_id`),
+  CONSTRAINT `doctors_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
-INSERT INTO `users` (`id`, `name`, `email`, `password`, `role`, `phone`, `dob`, `gender`, `blood_type`, `address`, `created_at`) VALUES
-(1, 'Dr. Alan Grant', 'doctor@carepulse.com', 'doc123', 'Physician', NULL, NULL, NULL, NULL, NULL, '2026-09-18 18:17:36'),
-(2, 'John Doe', 'patient@carepulse.com', 'patient123', 'Patient', NULL, NULL, NULL, NULL, NULL, '2026-09-18 18:17:36'),
-(3, 'Sarah Connor', 'reception@carepulse.com', 'reception123', 'Receptionist', NULL, NULL, NULL, NULL, NULL, '2026-09-18 18:17:36'),
-(4, 'Queue Pharmacist', 'pharma@carepulse.com', 'pharma123', 'Pharmacist', NULL, NULL, NULL, NULL, NULL, '2026-09-18 18:17:36'),
-(5, 'Store Manager', 'inventory@carepulse.com', 'inv123', 'InventoryManager', NULL, NULL, NULL, NULL, NULL, '2026-09-18 18:17:36');
+CREATE TABLE `patients` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `user_id` int(11) DEFAULT NULL,
+  `registered_date` date DEFAULT curdate(),
+  `last_visit` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `user_id` (`user_id`),
+  CONSTRAINT `patients_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
---
--- Indexes for dumped tables
---
+CREATE TABLE `appointments` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `patient_id` int(11) DEFAULT NULL,
+  `doctor_id` int(11) DEFAULT NULL,
+  `department` varchar(100) DEFAULT NULL,
+  `appointment_date` date DEFAULT NULL,
+  `appointment_time` time DEFAULT NULL,
+  `reason` text DEFAULT NULL,
+  `status` enum('Pending','Confirmed','Completed','Cancelled') DEFAULT 'Pending',
+  PRIMARY KEY (`id`),
+  KEY `patient_id` (`patient_id`),
+  KEY `doctor_id` (`doctor_id`),
+  CONSTRAINT `appointments_ibfk_1` FOREIGN KEY (`patient_id`) REFERENCES `patients` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `appointments_ibfk_2` FOREIGN KEY (`doctor_id`) REFERENCES `doctors` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
---
--- Indexes for table `activities`
---
-ALTER TABLE `activities`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `patient_id` (`patient_id`),
-  ADD KEY `doctor_id` (`doctor_id`);
+CREATE TABLE `medical_records` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `patient_id` int(11) DEFAULT NULL,
+  `doctor_id` int(11) DEFAULT NULL,
+  `record_date` date DEFAULT curdate(),
+  `record_type` varchar(100) DEFAULT NULL,
+  `diagnosis` text DEFAULT NULL,
+  `prescription_summary` text DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `patient_id` (`patient_id`),
+  KEY `doctor_id` (`doctor_id`),
+  CONSTRAINT `medical_records_ibfk_1` FOREIGN KEY (`patient_id`) REFERENCES `patients` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `medical_records_ibfk_2` FOREIGN KEY (`doctor_id`) REFERENCES `doctors` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
---
--- Indexes for table `appointments`
---
-ALTER TABLE `appointments`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `patient_id` (`patient_id`),
-  ADD KEY `doctor_id` (`doctor_id`);
+CREATE TABLE `prescriptions` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `patient_id` int(11) DEFAULT NULL,
+  `doctor_id` int(11) DEFAULT NULL,
+  `prescription_date` date DEFAULT curdate(),
+  `medication` varchar(150) NOT NULL,
+  `dosage` varchar(100) DEFAULT NULL,
+  `duration` varchar(100) DEFAULT NULL,
+  `quantity` int(11) DEFAULT NULL,
+  `refills` int(11) DEFAULT 0,
+  `status` enum('Pending','Dispensed','Cancelled') DEFAULT 'Pending',
+  PRIMARY KEY (`id`),
+  KEY `patient_id` (`patient_id`),
+  KEY `doctor_id` (`doctor_id`),
+  CONSTRAINT `prescriptions_ibfk_1` FOREIGN KEY (`patient_id`) REFERENCES `patients` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `prescriptions_ibfk_2` FOREIGN KEY (`doctor_id`) REFERENCES `doctors` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
---
--- Indexes for table `doctors`
---
-ALTER TABLE `doctors`
-  ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `license_number` (`license_number`),
-  ADD KEY `user_id` (`user_id`);
+CREATE TABLE `inventory` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `item_name` varchar(150) NOT NULL,
+  `category` varchar(100) DEFAULT NULL,
+  `quantity` int(11) NOT NULL,
+  `unit` varchar(50) DEFAULT NULL,
+  `unit_cost` decimal(10,2) DEFAULT NULL,
+  `expiry_date` date DEFAULT NULL,
+  `reorder_level` int(11) DEFAULT NULL,
+  `last_updated` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `status` enum('In Stock','Low Stock','Out of Stock') DEFAULT 'In Stock',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
---
--- Indexes for table `inventory`
---
-ALTER TABLE `inventory`
-  ADD PRIMARY KEY (`id`);
+CREATE TABLE `suppliers` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `supplier_name` varchar(150) NOT NULL,
+  `contact_person` varchar(100) DEFAULT NULL,
+  `email` varchar(100) DEFAULT NULL,
+  `phone` varchar(20) DEFAULT NULL,
+  `address` text DEFAULT NULL,
+  `status` enum('Active','Inactive') DEFAULT 'Active',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
---
--- Indexes for table `medical_records`
---
-ALTER TABLE `medical_records`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `patient_id` (`patient_id`),
-  ADD KEY `doctor_id` (`doctor_id`);
+CREATE TABLE `purchase_orders` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `order_number` varchar(50) DEFAULT NULL,
+  `order_date` date DEFAULT curdate(),
+  `supplier_id` int(11) DEFAULT NULL,
+  `supplier_name` varchar(150) DEFAULT NULL,
+  `total_items` int(11) DEFAULT NULL,
+  `amount` decimal(10,2) DEFAULT NULL,
+  `expected_delivery` date DEFAULT NULL,
+  `status` enum('Pending','Approved','Delivered','Cancelled') DEFAULT 'Pending',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `order_number` (`order_number`),
+  KEY `supplier_id` (`supplier_id`),
+  CONSTRAINT `purchase_orders_ibfk_1` FOREIGN KEY (`supplier_id`) REFERENCES `suppliers` (`id`) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
---
--- Indexes for table `patients`
---
-ALTER TABLE `patients`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `user_id` (`user_id`);
+CREATE TABLE `queues` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `queue_number` int(11) DEFAULT NULL,
+  `patient_id` int(11) DEFAULT NULL,
+  `doctor_id` int(11) DEFAULT NULL,
+  `check_in_time` time DEFAULT NULL,
+  `wait_time` varchar(50) DEFAULT NULL,
+  `status` enum('Waiting','Serving','Completed') DEFAULT 'Waiting',
+  PRIMARY KEY (`id`),
+  KEY `patient_id` (`patient_id`),
+  KEY `doctor_id` (`doctor_id`),
+  CONSTRAINT `queues_ibfk_1` FOREIGN KEY (`patient_id`) REFERENCES `patients` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `queues_ibfk_2` FOREIGN KEY (`doctor_id`) REFERENCES `doctors` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
---
--- Indexes for table `prescriptions`
---
-ALTER TABLE `prescriptions`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `patient_id` (`patient_id`),
-  ADD KEY `doctor_id` (`doctor_id`);
+CREATE TABLE `activities` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `activity_type` varchar(100) DEFAULT NULL,
+  `patient_id` int(11) DEFAULT NULL,
+  `doctor_id` int(11) DEFAULT NULL,
+  `activity_date` datetime DEFAULT current_timestamp(),
+  `status` varchar(50) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `patient_id` (`patient_id`),
+  KEY `doctor_id` (`doctor_id`),
+  CONSTRAINT `activities_ibfk_1` FOREIGN KEY (`patient_id`) REFERENCES `patients` (`id`) ON DELETE SET NULL,
+  CONSTRAINT `activities_ibfk_2` FOREIGN KEY (`doctor_id`) REFERENCES `doctors` (`id`) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
---
--- Indexes for table `purchase_orders`
---
-ALTER TABLE `purchase_orders`
-  ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `order_number` (`order_number`),
-  ADD KEY `supplier_id` (`supplier_id`);
+-- --------------------------------------------------------
+-- Seed data — uses LAST_INSERT_ID() so FKs always match
+-- --------------------------------------------------------
 
---
--- Indexes for table `queues`
---
-ALTER TABLE `queues`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `patient_id` (`patient_id`),
-  ADD KEY `doctor_id` (`doctor_id`);
+-- 1. Admin
+INSERT INTO users (name, email, password, role) VALUES
+('System Admin', 'admin@carepulse.com', 'admin123', 'Admin');
 
---
--- Indexes for table `suppliers`
---
-ALTER TABLE `suppliers`
-  ADD PRIMARY KEY (`id`);
+-- 2. Doctor
+INSERT INTO users (name, email, password, role) VALUES
+('Dr. Alan Grant', 'doctor@carepulse.com', 'doc123', 'Physician');
+SET @doctor_user_id = LAST_INSERT_ID();
+INSERT INTO doctors (user_id, specialization, license_number, experience_years, consultation_fee) VALUES
+(@doctor_user_id, 'General Medicine', 'LIC-12345', 15, 50.00);
+SET @doctor_id = LAST_INSERT_ID();
 
---
--- Indexes for table `users`
---
-ALTER TABLE `users`
-  ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `email` (`email`);
+-- 3. Patient
+INSERT INTO users (name, email, password, role) VALUES
+('John Doe', 'patient@carepulse.com', 'patient123', 'Patient');
+SET @patient_user_id = LAST_INSERT_ID();
+INSERT INTO patients (user_id, registered_date, last_visit) VALUES
+(@patient_user_id, CURDATE(), NOW());
+SET @patient_id = LAST_INSERT_ID();
 
---
--- AUTO_INCREMENT for dumped tables
---
+-- 4. Receptionist
+INSERT INTO users (name, email, password, role) VALUES
+('Sarah Connor', 'reception@carepulse.com', 'reception123', 'Receptionist');
 
---
--- AUTO_INCREMENT for table `activities`
---
-ALTER TABLE `activities`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+-- 5. Pharmacist
+INSERT INTO users (name, email, password, role) VALUES
+('Queue Pharmacist', 'pharma@carepulse.com', 'pharma123', 'Pharmacist');
 
---
--- AUTO_INCREMENT for table `appointments`
---
-ALTER TABLE `appointments`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+-- 6. Inventory Manager
+INSERT INTO users (name, email, password, role) VALUES
+('Store Manager', 'inventory@carepulse.com', 'inv123', 'InventoryManager');
 
---
--- AUTO_INCREMENT for table `doctors`
---
-ALTER TABLE `doctors`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+-- 7. One medical record
+INSERT INTO medical_records (patient_id, doctor_id, record_date, record_type, diagnosis, prescription_summary) VALUES
+(@patient_id, @doctor_id, CURDATE(), 'Consultation', 'Routine checkup — all vitals normal', 'None');
 
---
--- AUTO_INCREMENT for table `inventory`
---
-ALTER TABLE `inventory`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+-- 8. One appointment today
+INSERT INTO appointments (patient_id, doctor_id, department, appointment_date, appointment_time, reason, status) VALUES
+(@patient_id, @doctor_id, 'General Medicine', CURDATE(), '10:00:00', 'Follow-up', 'Confirmed');
 
---
--- AUTO_INCREMENT for table `medical_records`
---
-ALTER TABLE `medical_records`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `patients`
---
-ALTER TABLE `patients`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `prescriptions`
---
-ALTER TABLE `prescriptions`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `purchase_orders`
---
-ALTER TABLE `purchase_orders`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `queues`
---
-ALTER TABLE `queues`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `suppliers`
---
-ALTER TABLE `suppliers`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `users`
---
-ALTER TABLE `users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
-
---
--- Constraints for dumped tables
---
-
---
--- Constraints for table `activities`
---
-ALTER TABLE `activities`
-  ADD CONSTRAINT `activities_ibfk_1` FOREIGN KEY (`patient_id`) REFERENCES `patients` (`id`) ON DELETE SET NULL,
-  ADD CONSTRAINT `activities_ibfk_2` FOREIGN KEY (`doctor_id`) REFERENCES `doctors` (`id`) ON DELETE SET NULL;
-
---
--- Constraints for table `appointments`
---
-ALTER TABLE `appointments`
-  ADD CONSTRAINT `appointments_ibfk_1` FOREIGN KEY (`patient_id`) REFERENCES `patients` (`id`) ON DELETE CASCADE,
-  ADD CONSTRAINT `appointments_ibfk_2` FOREIGN KEY (`doctor_id`) REFERENCES `doctors` (`id`) ON DELETE CASCADE;
-
---
--- Constraints for table `doctors`
---
-ALTER TABLE `doctors`
-  ADD CONSTRAINT `doctors_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE;
-
---
--- Constraints for table `medical_records`
---
-ALTER TABLE `medical_records`
-  ADD CONSTRAINT `medical_records_ibfk_1` FOREIGN KEY (`patient_id`) REFERENCES `patients` (`id`) ON DELETE CASCADE,
-  ADD CONSTRAINT `medical_records_ibfk_2` FOREIGN KEY (`doctor_id`) REFERENCES `doctors` (`id`) ON DELETE CASCADE;
-
---
--- Constraints for table `patients`
---
-ALTER TABLE `patients`
-  ADD CONSTRAINT `patients_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE;
-
---
--- Constraints for table `prescriptions`
---
-ALTER TABLE `prescriptions`
-  ADD CONSTRAINT `prescriptions_ibfk_1` FOREIGN KEY (`patient_id`) REFERENCES `patients` (`id`) ON DELETE CASCADE,
-  ADD CONSTRAINT `prescriptions_ibfk_2` FOREIGN KEY (`doctor_id`) REFERENCES `doctors` (`id`) ON DELETE CASCADE;
-
---
--- Constraints for table `purchase_orders`
---
-ALTER TABLE `purchase_orders`
-  ADD CONSTRAINT `purchase_orders_ibfk_1` FOREIGN KEY (`supplier_id`) REFERENCES `suppliers` (`id`) ON DELETE SET NULL;
-
---
--- Constraints for table `queues`
---
-ALTER TABLE `queues`
-  ADD CONSTRAINT `queues_ibfk_1` FOREIGN KEY (`patient_id`) REFERENCES `patients` (`id`) ON DELETE CASCADE,
-  ADD CONSTRAINT `queues_ibfk_2` FOREIGN KEY (`doctor_id`) REFERENCES `doctors` (`id`) ON DELETE CASCADE;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
