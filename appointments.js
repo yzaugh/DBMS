@@ -88,12 +88,10 @@ function renderCalendar() {
   calendar += '<div style="font-weight: bold; text-align: center;">Fri</div>';
   calendar += '<div style="font-weight: bold; text-align: center;">Sat</div>';
 
-  // Empty cells for days before month starts
   for (let i = 0; i < startDay; i++) {
     calendar += '<div></div>';
   }
 
-  // Days of the month
   for (let day = 1; day <= daysInMonth; day++) {
     const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
     const hasAppointments = allAppointments.some(a => a.date === dateStr);
@@ -165,6 +163,7 @@ function loadScheduleSection() {
       <td>
         <button class="btn-small" onclick="viewAppointmentDetail('${apt.id}')">View</button>
         ${apt.status === 'scheduled' ? `<button class="btn-small danger" onclick="cancelAppointmentScheduler('${apt.id}')">Cancel</button>` : ''}
+        <button class="btn-small danger" onclick="deleteAppointmentScheduler('${apt.id}')">Delete</button>
       </td>
     </tr>
   `).join('');
@@ -187,6 +186,7 @@ function filterAppointments() {
       <td>
         <button class="btn-small" onclick="viewAppointmentDetail('${apt.id}')">View</button>
         ${apt.status === 'scheduled' ? `<button class="btn-small danger" onclick="cancelAppointmentScheduler('${apt.id}')">Cancel</button>` : ''}
+        <button class="btn-small danger" onclick="deleteAppointmentScheduler('${apt.id}')">Delete</button>
       </td>
     </tr>
   `).join('');
@@ -220,7 +220,23 @@ function resetBookingForm() {
 }
 
 function updateAvailableTimes() {
-  // This could be enhanced to show only available times based on doctor's schedule
+  // Enhancement: filter available times based on doctor's schedule
+  const doctorId = document.getElementById('booking-doctor').value;
+  const date = document.getElementById('booking-date').value;
+  
+  if (!doctorId || !date) return;
+
+  const availableSlots = DataManager.getAvailableSlots(doctorId, date);
+  const timeSelect = document.getElementById('booking-time');
+  
+  // Clear and repopulate time options
+  timeSelect.innerHTML = '<option value="">Select time...</option>';
+  availableSlots.forEach(slot => {
+    const option = document.createElement('option');
+    option.value = slot;
+    option.text = formatTime(slot);
+    timeSelect.appendChild(option);
+  });
 }
 
 function submitBooking(event) {
@@ -240,7 +256,6 @@ function submitBooking(event) {
     return;
   }
 
-  // Check for conflicts
   const conflict = allAppointments.some(a => a.doctorId === doctorId && a.date === date && a.time === time && a.status !== 'cancelled');
   if (conflict) {
     alert('This time slot is already booked. Please select another time.');
@@ -278,7 +293,6 @@ function loadAnalyticsSection() {
   document.getElementById('scheduled-appointments').innerText = scheduled;
   document.getElementById('cancelled-appointments').innerText = cancelled;
 
-  // Doctor analytics
   const doctors = DataManager.getDoctors();
   const doctorAnalytics = doctors.map(doctor => {
     const doctorApts = allAppointments.filter(a => a.doctorId === doctor.id);
@@ -311,7 +325,6 @@ function loadAnalyticsSection() {
     </tr>
   `).join('');
 
-  // Patient analytics
   const patients = DataManager.getPatients();
   const patientAnalytics = patients.map(patient => {
     const patientApts = allAppointments.filter(a => a.patientId === patient.id).sort((a, b) => new Date(b.date) - new Date(a.date));
@@ -358,7 +371,86 @@ function cancelAppointmentScheduler(appointmentId) {
     allAppointments = DataManager.getAppointments();
     alert('Appointment cancelled successfully');
     loadCalendarView();
+    loadScheduleSection();
   }
+}
+
+function deleteAppointmentScheduler(appointmentId) {
+  const apt = allAppointments.find(a => a.id === appointmentId);
+  if (apt && confirm(`Permanently delete appointment for ${apt.patientName}? This cannot be undone.`)) {
+    const appointments = DataManager.getAppointments().filter(a => a.id !== appointmentId);
+    localStorage.setItem(DataManager.STORAGE_PREFIX + 'appointments', JSON.stringify(appointments));
+    allAppointments = DataManager.getAppointments();
+    alert('Appointment deleted successfully');
+    loadCalendarView();
+    loadScheduleSection();
+  }
+}
+
+// Edit appointment function
+function editAppointment(appointmentId) {
+  const apt = allAppointments.find(a => a.id === appointmentId);
+  if (!apt) {
+    alert('Appointment not found');
+    return;
+  }
+
+  const modalHtml = `
+    <div id="edit-apt-modal" class="modal-overlay">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2>Edit Appointment</h2>
+          <button onclick="closeModal('edit-apt-modal')" style="background:none;border:none;cursor:pointer;font-size:24px;">&times;</button>
+        </div>
+        <div class="modal-body">
+          <div class="form-group">
+            <label>Date</label>
+            <input type="date" id="edit-apt-date" value="${apt.date}">
+          </div>
+          <div class="form-group">
+            <label>Time</label>
+            <input type="time" id="edit-apt-time" value="${apt.time}">
+          </div>
+          <div class="form-group">
+            <label>Status</label>
+            <select id="edit-apt-status">
+              <option value="scheduled" ${apt.status === 'scheduled' ? 'selected' : ''}>Scheduled</option>
+              <option value="completed" ${apt.status === 'completed' ? 'selected' : ''}>Completed</option>
+              <option value="cancelled" ${apt.status === 'cancelled' ? 'selected' : ''}>Cancelled</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Reason</label>
+            <textarea id="edit-apt-reason">${apt.reason}</textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn-small" style="background-color:#707ebe;" onclick="closeModal('edit-apt-modal')">Cancel</button>
+          <button class="btn-small" onclick="saveAppointmentEdit('${appointmentId}')">Save Changes</button>
+        </div>
+      </div>
+    </div>
+  `;
+  document.body.insertAdjacentHTML('beforeend', modalHtml);
+}
+
+function saveAppointmentEdit(appointmentId) {
+  const date = document.getElementById('edit-apt-date').value;
+  const time = document.getElementById('edit-apt-time').value;
+  const status = document.getElementById('edit-apt-status').value;
+  const reason = document.getElementById('edit-apt-reason').value;
+
+  DataManager.updateAppointment(appointmentId, { date, time, status, reason });
+  allAppointments = DataManager.getAppointments();
+  closeModal('edit-apt-modal');
+  alert('Appointment updated successfully');
+  loadCalendarView();
+  loadScheduleSection();
+}
+
+function closeModal(modalId) {
+  const modal = document.getElementById(modalId);
+  if (modal) modal.remove();
 }
 
 function logoutUser() {

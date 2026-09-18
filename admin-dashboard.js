@@ -53,9 +53,7 @@ async function fetchDashboardData() {
 function initializeDashboard() {
   document.querySelectorAll('.nav-item').forEach(item => {
     item.addEventListener('click', (e) => {
-      // Skip the logout link (it has margin-top inline style)
       if (item.style.marginTop) return;
-      // Links with real hrefs navigate normally
       if (item.getAttribute('href') && item.getAttribute('href') !== '#') return;
       e.preventDefault();
     });
@@ -63,23 +61,19 @@ function initializeDashboard() {
 }
 
 function loadSection(sectionName) {
-  // Hide all sections
   document.querySelectorAll('.content-section').forEach(section => {
     section.style.display = 'none';
   });
 
-  // Show target
   const targetSection = document.getElementById(`section-${sectionName}`);
   if (targetSection) targetSection.style.display = 'block';
 
-  // Update nav highlight
   document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
   if (event && event.target) {
     const nav = event.target.closest('.nav-item');
     if (nav) nav.classList.add('active');
   }
 
-  // Title
   const titles = {
     overview:     'Dashboard Overview',
     patients:     'Patient Management',
@@ -91,7 +85,6 @@ function loadSection(sectionName) {
   };
   document.getElementById('page-title').innerText = titles[sectionName] || 'Dashboard';
 
-  // Section-specific loaders
   switch (sectionName) {
     case 'overview':     loadOverviewSection();    break;
     case 'patients':     loadPatientsSection();    break;
@@ -107,7 +100,6 @@ function loadSection(sectionName) {
 // ------------------------------------------------------------
 function loadOverviewSection() {
   if (!dashboardData.stats) {
-    // Still show zeros so the page isn't stuck on "Loading..."
     ['total-patients', 'active-doctors', 'total-records', 'todays-appointments']
       .forEach(id => { const el = document.getElementById(id); if (el) el.innerText = '0'; });
     const tbody = document.getElementById('recent-activities');
@@ -191,7 +183,7 @@ function loadDoctorsSection() {
 // ------------------------------------------------------------
 function loadRecordsSection() {
   const tbody = document.getElementById('records-table');
-  const records = dashboardData.activities || []; // reused from activities query
+  const records = dashboardData.activities || [];
 
   if (records.length > 0) {
     tbody.innerHTML = records.map(record => `
@@ -269,57 +261,361 @@ function loadQueueSection() {
 }
 
 // ------------------------------------------------------------
-// ACTIONS
+// PATIENT ACTIONS
 // ------------------------------------------------------------
 function showForm(formType) {
   if (formType === 'add-patient') {
-    const name = prompt('Patient Name:');
-    if (!name) return;
-    const email = prompt('Patient Email:');
-    if (!email) return;
-    const phone = prompt('Patient Phone (optional):') || '';
-
-    fetch('add-patient.php', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name, email, phone })
-    })
-    .then(r => r.json())
-    .then(data => {
-      if (data.success) {
-        alert('Patient added successfully!');
-        fetchDashboardData().then(() => {
-          loadPatientsSection();
-          loadOverviewSection();
-        });
-      } else {
-        alert('Error: ' + (data.error || 'Unknown error'));
-      }
-    })
-    .catch(err => alert('Network error: ' + err));
+    showAddPatientModal();
+  } else if (formType === 'add-user') {
+    showAddUserModal();
   } else {
     alert(`Form for ${formType} - To be implemented`);
   }
 }
 
+function showAddPatientModal() {
+  const modalHtml = `
+    <div id="add-patient-modal" class="modal-overlay">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2>Add New Patient</h2>
+          <button onclick="closeModal('add-patient-modal')" style="background:none;border:none;cursor:pointer;font-size:24px;">&times;</button>
+        </div>
+        <div class="modal-body">
+          <div class="form-group">
+            <label>Full Name *</label>
+            <input type="text" id="new-patient-name" placeholder="Enter full name" required>
+          </div>
+          <div class="form-group">
+            <label>Email *</label>
+            <input type="email" id="new-patient-email" placeholder="Enter email" required>
+          </div>
+          <div class="form-group">
+            <label>Phone</label>
+            <input type="tel" id="new-patient-phone" placeholder="Enter phone number">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn-small" style="background-color:#707ebe;" onclick="closeModal('add-patient-modal')">Cancel</button>
+          <button class="btn-small" onclick="submitAddPatient()">Add Patient</button>
+        </div>
+      </div>
+    </div>
+  `;
+  document.body.insertAdjacentHTML('beforeend', modalHtml);
+}
+
+function submitAddPatient() {
+  const name = document.getElementById('new-patient-name').value.trim();
+  const email = document.getElementById('new-patient-email').value.trim();
+  const phone = document.getElementById('new-patient-phone').value.trim();
+
+  if (!name || !email) {
+    alert('Name and email are required');
+    return;
+  }
+
+  fetch('add-patient.php', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ name, email, phone })
+  })
+  .then(r => r.json())
+  .then(data => {
+    if (data.success) {
+      alert('Patient added successfully!');
+      closeModal('add-patient-modal');
+      fetchDashboardData().then(() => {
+        loadPatientsSection();
+        loadOverviewSection();
+      });
+    } else {
+      alert('Error: ' + (data.error || 'Unknown error'));
+    }
+  })
+  .catch(err => alert('Network error: ' + err));
+}
+
 function editPatient(patientId) {
-  alert(`Editing patient ID: ${patientId}`);
+  const patient = (dashboardData.patients || []).find(p => p.id == patientId);
+  if (!patient) {
+    alert('Patient not found');
+    return;
+  }
+
+  const modalHtml = `
+    <div id="edit-patient-modal" class="modal-overlay">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2>Edit Patient</h2>
+          <button onclick="closeModal('edit-patient-modal')" style="background:none;border:none;cursor:pointer;font-size:24px;">&times;</button>
+        </div>
+        <div class="modal-body">
+          <div class="form-group">
+            <label>Full Name *</label>
+            <input type="text" id="edit-patient-name" value="${escapeHtml(patient.name)}" required>
+          </div>
+          <div class="form-group">
+            <label>Email *</label>
+            <input type="email" id="edit-patient-email" value="${escapeHtml(patient.email)}" required>
+          </div>
+          <div class="form-group">
+            <label>Phone</label>
+            <input type="tel" id="edit-patient-phone" value="${escapeHtml(patient.phone || '')}">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn-small" style="background-color:#707ebe;" onclick="closeModal('edit-patient-modal')">Cancel</button>
+          <button class="btn-small" onclick="submitEditPatient('${patientId}')">Save Changes</button>
+        </div>
+      </div>
+    </div>
+  `;
+  document.body.insertAdjacentHTML('beforeend', modalHtml);
+}
+
+function submitEditPatient(patientId) {
+  const name = document.getElementById('edit-patient-name').value.trim();
+  const email = document.getElementById('edit-patient-email').value.trim();
+  const phone = document.getElementById('edit-patient-phone').value.trim();
+
+  if (!name || !email) {
+    alert('Name and email are required');
+    return;
+  }
+
+  fetch('update-patient.php', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ id: patientId, name, email, phone })
+  })
+  .then(r => r.json())
+  .then(data => {
+    if (data.success) {
+      alert('Patient updated successfully!');
+      closeModal('edit-patient-modal');
+      fetchDashboardData().then(() => {
+        loadPatientsSection();
+        loadOverviewSection();
+      });
+    } else {
+      alert('Error: ' + (data.error || 'Unknown error'));
+    }
+  })
+  .catch(err => alert('Network error: ' + err));
 }
 
 function deletePatient(patientId) {
-  if (confirm('Are you sure you want to delete this patient?')) {
-    alert('Delete functionality to be linked to backend');
+  if (!confirm('Are you sure you want to delete this patient? This action cannot be undone.')) {
+    return;
   }
+
+  fetch('delete-patient.php', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ id: patientId })
+  })
+  .then(r => r.json())
+  .then(data => {
+    if (data.success) {
+      alert('Patient deleted successfully!');
+      fetchDashboardData().then(() => {
+        loadPatientsSection();
+        loadOverviewSection();
+      });
+    } else {
+      alert('Error: ' + (data.error || 'Unknown error'));
+    }
+  })
+  .catch(err => alert('Network error: ' + err));
+}
+
+// ------------------------------------------------------------
+// USER ACTIONS
+// ------------------------------------------------------------
+function showAddUserModal() {
+  const modalHtml = `
+    <div id="add-user-modal" class="modal-overlay">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2>Add New User</h2>
+          <button onclick="closeModal('add-user-modal')" style="background:none;border:none;cursor:pointer;font-size:24px;">&times;</button>
+        </div>
+        <div class="modal-body">
+          <div class="form-group">
+            <label>Full Name *</label>
+            <input type="text" id="new-user-name" placeholder="Enter full name" required>
+          </div>
+          <div class="form-group">
+            <label>Email *</label>
+            <input type="email" id="new-user-email" placeholder="Enter email" required>
+          </div>
+          <div class="form-group">
+            <label>Password</label>
+            <input type="password" id="new-user-password" placeholder="Default: default123">
+          </div>
+          <div class="form-group">
+            <label>Role *</label>
+            <select id="new-user-role" required>
+              <option value="">Select role...</option>
+              <option value="Admin">Admin</option>
+              <option value="Physician">Physician</option>
+              <option value="Patient">Patient</option>
+              <option value="Receptionist">Receptionist</option>
+              <option value="Pharmacist">Pharmacist</option>
+              <option value="InventoryManager">Inventory Manager</option>
+            </select>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn-small" style="background-color:#707ebe;" onclick="closeModal('add-user-modal')">Cancel</button>
+          <button class="btn-small" onclick="submitAddUser()">Add User</button>
+        </div>
+      </div>
+    </div>
+  `;
+  document.body.insertAdjacentHTML('beforeend', modalHtml);
+}
+
+function submitAddUser() {
+  const name = document.getElementById('new-user-name').value.trim();
+  const email = document.getElementById('new-user-email').value.trim();
+  const password = document.getElementById('new-user-password').value.trim() || 'default123';
+  const role = document.getElementById('new-user-role').value;
+
+  if (!name || !email || !role) {
+    alert('Name, email, and role are required');
+    return;
+  }
+
+  fetch('add-user.php', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ name, email, password, role })
+  })
+  .then(r => r.json())
+  .then(data => {
+    if (data.success) {
+      alert('User added successfully!');
+      closeModal('add-user-modal');
+      fetchDashboardData().then(() => {
+        loadUsersSection();
+        loadOverviewSection();
+      });
+    } else {
+      alert('Error: ' + (data.error || 'Unknown error'));
+    }
+  })
+  .catch(err => alert('Network error: ' + err));
 }
 
 function editUser(userId) {
-  alert(`Editing user ID: ${userId}`);
+  const user = (dashboardData.users || []).find(u => u.id == userId);
+  if (!user) {
+    alert('User not found');
+    return;
+  }
+
+  const modalHtml = `
+    <div id="edit-user-modal" class="modal-overlay">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2>Edit User</h2>
+          <button onclick="closeModal('edit-user-modal')" style="background:none;border:none;cursor:pointer;font-size:24px;">&times;</button>
+        </div>
+        <div class="modal-body">
+          <div class="form-group">
+            <label>Full Name *</label>
+            <input type="text" id="edit-user-name" value="${escapeHtml(user.name)}" required>
+          </div>
+          <div class="form-group">
+            <label>Email *</label>
+            <input type="email" id="edit-user-email" value="${escapeHtml(user.email)}" required>
+          </div>
+          <div class="form-group">
+            <label>Role *</label>
+            <select id="edit-user-role" required>
+              <option value="Admin" ${user.role === 'Admin' ? 'selected' : ''}>Admin</option>
+              <option value="Physician" ${user.role === 'Physician' ? 'selected' : ''}>Physician</option>
+              <option value="Patient" ${user.role === 'Patient' ? 'selected' : ''}>Patient</option>
+              <option value="Receptionist" ${user.role === 'Receptionist' ? 'selected' : ''}>Receptionist</option>
+              <option value="Pharmacist" ${user.role === 'Pharmacist' ? 'selected' : ''}>Pharmacist</option>
+              <option value="InventoryManager" ${user.role === 'InventoryManager' ? 'selected' : ''}>Inventory Manager</option>
+            </select>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn-small" style="background-color:#707ebe;" onclick="closeModal('edit-user-modal')">Cancel</button>
+          <button class="btn-small" onclick="submitEditUser('${userId}')">Save Changes</button>
+        </div>
+      </div>
+    </div>
+  `;
+  document.body.insertAdjacentHTML('beforeend', modalHtml);
+}
+
+function submitEditUser(userId) {
+  const name = document.getElementById('edit-user-name').value.trim();
+  const email = document.getElementById('edit-user-email').value.trim();
+  const role = document.getElementById('edit-user-role').value;
+
+  if (!name || !email || !role) {
+    alert('All fields are required');
+    return;
+  }
+
+  fetch('update-user.php', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ id: userId, name, email, role })
+  })
+  .then(r => r.json())
+  .then(data => {
+    if (data.success) {
+      alert('User updated successfully!');
+      closeModal('edit-user-modal');
+      fetchDashboardData().then(() => {
+        loadUsersSection();
+        loadOverviewSection();
+      });
+    } else {
+      alert('Error: ' + (data.error || 'Unknown error'));
+    }
+  })
+  .catch(err => alert('Network error: ' + err));
 }
 
 function deleteUser(userId) {
-  if (confirm('Are you sure you want to delete this user?')) {
-    alert('Delete functionality to be linked to backend');
+  if (!confirm('Are you sure you want to delete this user? This action cannot be undone.')) {
+    return;
   }
+
+  fetch('delete-user.php', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ id: userId })
+  })
+  .then(r => r.json())
+  .then(data => {
+    if (data.success) {
+      alert('User deleted successfully!');
+      fetchDashboardData().then(() => {
+        loadUsersSection();
+        loadOverviewSection();
+      });
+    } else {
+      alert('Error: ' + (data.error || 'Unknown error'));
+    }
+  })
+  .catch(err => alert('Network error: ' + err));
+}
+
+// ------------------------------------------------------------
+// MODAL UTILITIES
+// ------------------------------------------------------------
+function closeModal(modalId) {
+  const modal = document.getElementById(modalId);
+  if (modal) modal.remove();
 }
 
 function logoutUser() {
@@ -353,4 +649,9 @@ window.editPatient   = editPatient;
 window.deletePatient = deletePatient;
 window.editUser      = editUser;
 window.deleteUser    = deleteUser;
+window.closeModal    = closeModal;
 window.logoutUser    = logoutUser;
+window.submitAddPatient = submitAddPatient;
+window.submitEditPatient = submitEditPatient;
+window.submitAddUser = submitAddUser;
+window.submitEditUser = submitEditUser;

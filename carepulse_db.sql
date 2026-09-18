@@ -213,11 +213,12 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`id`, `name`, `email`, `password`, `role`, `phone`, `dob`, `gender`, `blood_type`, `address`, `created_at`) VALUES
-(1, 'Dr. Alan Grant', 'doctor@carepulse.com', 'doc123', 'Physician', NULL, NULL, NULL, NULL, NULL, '2026-09-18 18:17:36'),
-(2, 'John Doe', 'patient@carepulse.com', 'patient123', 'Patient', NULL, NULL, NULL, NULL, NULL, '2026-09-18 18:17:36'),
-(3, 'Sarah Connor', 'reception@carepulse.com', 'reception123', 'Receptionist', NULL, NULL, NULL, NULL, NULL, '2026-09-18 18:17:36'),
-(4, 'Queue Pharmacist', 'pharma@carepulse.com', 'pharma123', 'Pharmacist', NULL, NULL, NULL, NULL, NULL, '2026-09-18 18:17:36'),
-(5, 'Store Manager', 'inventory@carepulse.com', 'inv123', 'InventoryManager', NULL, NULL, NULL, NULL, NULL, '2026-09-18 18:17:36');
+(1, 'System Admin', 'admin@carepulse.com', 'admin123', 'Admin', NULL, NULL, NULL, NULL, NULL, '2026-09-18 18:17:36'),
+(2, 'Dr. Alan Grant', 'doctor@carepulse.com', 'doc123', 'Physician', NULL, NULL, NULL, NULL, NULL, '2026-09-18 18:17:36'),
+(3, 'John Doe', 'patient@carepulse.com', 'patient123', 'Patient', NULL, NULL, NULL, NULL, NULL, '2026-09-18 18:17:36'),
+(4, 'Sarah Connor', 'reception@carepulse.com', 'reception123', 'Receptionist', NULL, NULL, NULL, NULL, NULL, '2026-09-18 18:17:36'),
+(5, 'Queue Pharmacist', 'pharma@carepulse.com', 'pharma123', 'Pharmacist', NULL, NULL, NULL, NULL, NULL, '2026-09-18 18:17:36'),
+(6, 'Store Manager', 'inventory@carepulse.com', 'inv123', 'InventoryManager', NULL, NULL, NULL, NULL, NULL, '2026-09-18 18:17:36');
 
 --
 -- Indexes for dumped tables
