@@ -6,7 +6,7 @@
 
 3. clone it at xampp\htdocs path
    
-4.  ```bash
+4. ```bash
    git clone https://github.com/yzaugh/DBMS.git
    ```
 
